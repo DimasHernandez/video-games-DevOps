@@ -58,6 +58,7 @@ public class Creator {
     }
 
     public void addVideoGame(VideoGame videoGame) {
+        // Proteccion a videoGame duplicados
         if (this.videoGames.contains(videoGame)) return;
 
         videoGame.setCreator(this);
