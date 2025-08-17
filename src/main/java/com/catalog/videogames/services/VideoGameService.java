@@ -1,9 +1,11 @@
 package com.catalog.videogames.services;
 
-import com.catalog.videogames.models.Creator;
 import com.catalog.videogames.models.VideoGame;
+import com.catalog.videogames.repositories.VideoGameProjection;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface VideoGameService {
 
@@ -11,8 +13,11 @@ public interface VideoGameService {
 
     VideoGame update(Long id, VideoGame videoGame);
 
+    VideoGame findById(Long id);
+
     void delete(Long id);
 
-    // TODO: Revisar si en lugar de recibir el parametro Creator, mejor recibir el id del Creator.
-    List<VideoGame> listVideoGamesGroupedByCreator(Creator creator);
+    Set<VideoGame> listVideoGamesByCreator(Long creatorId);
+
+    Map<String, List<VideoGameProjection>> listAllVideoGamesGroupedByCreator();
 }

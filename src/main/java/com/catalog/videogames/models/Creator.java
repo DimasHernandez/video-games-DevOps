@@ -2,8 +2,9 @@ package com.catalog.videogames.models;
 
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 public class Creator {
@@ -17,16 +18,16 @@ public class Creator {
     private String country;
 
     @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<VideoGame> videoGames;
+    private Set<VideoGame> videoGames;
 
     public Creator() {
-        this.videoGames = new ArrayList<>();
+        this.videoGames = new HashSet<>();
     }
 
-    public Creator(String name, String country, List<VideoGame> videoGames) {
+    public Creator(String name, String country, Set<VideoGame> videoGames) {
         this.name = name;
         this.country = country;
-        this.videoGames = videoGames != null ? videoGames : new ArrayList<>();
+        this.videoGames = videoGames != null ? videoGames : new HashSet<>();
     }
 
     public Long getId() {
@@ -49,18 +50,17 @@ public class Creator {
         this.country = country;
     }
 
-    public List<VideoGame> getVideoGames() {
+    public Set<VideoGame> getVideoGames() {
         return videoGames;
     }
 
-    public void setVideoGames(List<VideoGame> videoGames) {
+    public void setVideoGames(Set<VideoGame> videoGames) {
         this.videoGames = videoGames;
     }
 
     public void addVideoGame(VideoGame videoGame) {
-        // Proteccion a videoGame duplicados
-        if (this.videoGames.contains(videoGame)) return;
-
+        // Proteccion a videoGame duplicados. Se omite al trabajar con el Set<>
+//        if (this.videoGames.contains(videoGame)) return;
         videoGame.setCreator(this);
         this.videoGames.add(videoGame);
     }

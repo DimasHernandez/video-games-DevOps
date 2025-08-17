@@ -18,6 +18,7 @@ public class CreatorServiceImp implements CreatorService {
     @Override
     public Creator save(Creator creator) {
         // Asegurar que el creator bien seteado y mantener la sincronizacion bidireccional
+//        creator.getVideoGames().forEach(videoGame -> creator.addVideoGame(videoGame));
         creator.getVideoGames().forEach(creator::addVideoGame);
         return creatorRepository.save(creator);
     }
