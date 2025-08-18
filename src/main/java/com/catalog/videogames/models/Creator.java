@@ -3,7 +3,7 @@ package com.catalog.videogames.models;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
-import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -28,6 +28,27 @@ public class Creator {
         this.name = name;
         this.country = country;
         this.videoGames = videoGames != null ? videoGames : new HashSet<>();
+    }
+
+    public Creator(Long id, String name, String country, Set<VideoGame> videoGames) {
+        this.id = id;
+        this.name = name;
+        this.country = country;
+        this.videoGames = videoGames;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (Objects.isNull(o)) return false;
+
+        if (!(o instanceof Creator)) return false;
+
+        return Objects.equals(id, ((Creator) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 
     public Long getId() {

@@ -6,6 +6,10 @@ import com.catalog.videogames.models.VideoGame;
 import com.catalog.videogames.repositories.CreatorRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 @Service
 public class CreatorServiceImp implements CreatorService {
 
@@ -17,6 +21,9 @@ public class CreatorServiceImp implements CreatorService {
 
     @Override
     public Creator save(Creator creator) {
+
+        if (Objects.isNull(creator))
+            throw new IllegalArgumentException("Illegal argument, please review the data sent");
         // Asegurar que el creator bien seteado y mantener la sincronizacion bidireccional
 //        creator.getVideoGames().forEach(videoGame -> creator.addVideoGame(videoGame));
         creator.getVideoGames().forEach(creator::addVideoGame);
@@ -38,11 +45,16 @@ public class CreatorServiceImp implements CreatorService {
 
     @Override
     public void delete(Long id) {
-
         Creator creatorDb = creatorRepository.findById(id)
                 .orElseThrow(() -> new CreatorNotFoundException(String.format("Creator with id %d not found", id)));
+
+        List<VideoGame> videoGames = new ArrayList<>(creatorDb.getVideoGames());
+        for (int i = 0; i < videoGames.size(); i++) {
+            creatorDb.removeVideoGame(videoGames.get(i));
+        }
+
 //        creatorDb.getVideoGames().forEach(videoGame -> creatorDb.removeVideoGame(videoGame));
-        creatorDb.getVideoGames().forEach(creatorDb::removeVideoGame);
+//        creatorDb.getVideoGames().forEach(creatorDb::removeVideoGame); // Presenta problemas -> Arroja ConcurrentModificationException
         creatorRepository.delete(creatorDb);
     }
 

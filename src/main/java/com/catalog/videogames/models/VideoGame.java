@@ -32,6 +32,14 @@ public class VideoGame {
         this.releaseDate = releaseDate;
     }
 
+    // contructor para las test
+    public VideoGame(Long id, String title, Platform platform, LocalDate releaseDate) {
+        this.id = id;
+        this.title = title;
+        this.platform = platform;
+        this.releaseDate = releaseDate;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (Objects.isNull(obj)) return false;

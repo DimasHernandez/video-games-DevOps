@@ -7,6 +7,5 @@ public enum Platform {
     NINTENDO_SWITCH(),
     PC(),
     IOS(),
-    ANDROID(),
-    ANONYMOUS();
+    ANDROID();
 }

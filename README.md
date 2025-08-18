@@ -81,3 +81,94 @@ Pasos:
 3. En el servicio, agrupar los resultados usando Collectors.groupingBy(...).
 
 Esto ayuda a optimizar rendimiento y traer solo la información necesaria, especialmente útil en listados grandes.
+
+### 🧪 Manejo del método ```delete()``` y error ```ConcurrentModificationException```
+🧹 Contexto
+
+Durante la implementación del método ```delete(Long id)``` en el ```CreatorService```, fue necesario eliminar a
+un ```Creator``` junto con la relación bidireccional que mantiene con sus ```VideoGames```.
+
+El modelo estaba definido con una relación bidireccional como:
+
+    @OneToMany(mappedBy = "creator", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<VideoGame> videoGames;
+
+Por lo tanto, antes de eliminar un Creator, es necesario **remover manualmente los videojuegos de su colección** para mantener la consistencia de la relación y evitar referencias huérfanas.
+
+#### ❌ Error: ```ConcurrentModificationException```
+
+El intento inicial de eliminar los videojuegos asociados se realizó con este fragmento:
+
+    creatorDb.getVideoGames().forEach(creatorDb::removeVideoGame);
+
+
+Este código arrojó:
+
+    java.util.ConcurrentModificationException
+
+#### 🧠 ¿Por qué ocurre?
+
+El error no tiene que ver con concurrencia multihilo, como podría parecer. Se produce porque estás modificando la colección (removeVideoGame) mientras la recorres con forEach(...), lo que invalida el iterador interno de la colección.
+
+##### ✅ Solución aplicada
+
+Se creó una **copia segura** de la colección usando ```new ArrayList<>(...)```, y luego se iteró sobre esa lista para modificar la original:
+
+    List<VideoGame> videoGames = new ArrayList<>(creatorDb.getVideoGames());
+    for (VideoGame videoGame : videoGames) {
+    creatorDb.removeVideoGame(videoGame);
+    }
+
+
+Esto evita el error porque no estás iterando sobre la misma colección que estás modificando.
+
+##### ✅ Test de eliminación
+
+Se cubrió esta lógica con un test de unidad que:
+
+1. Verifica que se llama a creatorRepository.delete(...).
+
+2. Verifica que la colección de videojuegos del ```Creator``` queda vacía tras la operación.
+
+
+    @Test
+    void shouldDeleteCreatorSuccessfullyTest() {
+    Long id = 1L;
+    Creator creatorToDelete = DataMock.creatorMock();
+    
+        when(creatorRepository.findById(id)).thenReturn(Optional.of(creatorToDelete));
+    
+        creatorService.delete(id);
+    
+        verify(creatorRepository).delete(creatorToDelete);
+        assertEquals(0, creatorToDelete.getVideoGames().size());
+    }
+
+
+También se implementó un test usando ```ArgumentCaptor``` para capturar el objeto ```Creator``` final antes de ser eliminado y asegurarse de que su lista de videojuegos esté vacía:
+
+    @Captor
+    private ArgumentCaptor<Creator> creatorArgumentCaptor;
+    
+    @Test
+    void shouldDeleteCreatorSuccessfullyWithArgumentCaptorTest() {
+    Long id = 1L;
+    Creator creatorToDelete = DataMock.creatorMock();
+    
+        when(creatorRepository.findById(id)).thenReturn(Optional.of(creatorToDelete));
+    
+        creatorService.delete(id);
+    
+        verify(creatorRepository).delete(creatorArgumentCaptor.capture());
+        Creator captured = creatorArgumentCaptor.getValue();
+    
+        assertEquals(0, captured.getVideoGames().size());
+    }
+
+##### 📘 Lección aprendida
+
+* El error ```ConcurrentModificationException``` no siempre es por concurrencia, a veces es por modificar una colección mientras se itera.
+
+* En relaciones bidireccionales, **mantener la consistencia entre entidades antes de operaciones de persistencia** es clave.
+
+* Usar estructuras como ```Set<>``` puede ayudar a evitar duplicados innecesarios en asociaciones.
