@@ -27,6 +27,15 @@ Luego se procedera a crear su despliegue en los diferentes ambientes de trabajo 
 
 - Paginación (si hay muchos registros)
 
+## 🛠️ Diagramas
+
+### *1. Diagrama de Clases*
+![img_2.png](img_2.png)
+
+### *2. Diagrama Entidad Relación*
+![img_3.png](img_3.png)
+
+
 ## 🧠 Notas de Lógica y Aprendizaje
 #### ✅ Método update() en VideoGameService
 
